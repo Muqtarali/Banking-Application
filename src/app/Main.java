@@ -2,8 +2,9 @@
 package app;
 
 import domain.Account;
+import domain.Transaction;
 import service.BankService;
-import service.impl.BankServiceimpl;
+import service.impl.BankServiceImpl;
 
 import java.util.List;
 import java.util.Scanner;
@@ -12,7 +13,7 @@ public class Main {
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        BankService service = new BankServiceimpl();
+        BankService service = new BankServiceImpl();
 
         System.out.println("welcome to console Bank");
         boolean running = true;
@@ -69,19 +70,64 @@ public class Main {
     }
 
     public static void deposit(Scanner sc, BankService service) {
-        System.out.println("Deposit  not implemented yet");
+        System.out.println("Account Number:");
+        String accountNumber = sc.next().trim();
+
+        System.out.println("Amount:");
+        double amount = sc.nextDouble();
+
+        boolean success = service.deposit(accountNumber, amount);
+        System.out.println(success ? "Deposit successful" : "Deposit failed");
     }
 
     public static void withdraw(Scanner sc, BankService service) {
-        System.out.println("Withdraw  not implemented yet");
+        System.out.println("Account Number:");
+        String accountNumber = sc.next().trim();
+
+        System.out.println("Amount:");
+        double amount = sc.nextDouble();
+
+        sc.nextLine(); // consume leftover newline
+        System.out.println("Note:");
+        String note = sc.nextLine().trim();
+
+        boolean success = service.withdraw(accountNumber, amount, note);
+        System.out.println(success ? "Withdrawal successful" : "Withdrawal failed");
     }
 
     public static void transfer(Scanner sc, BankService service) {
-        System.out.println("Transfer  not implemented yet");
+        System.out.println("From account:");
+        String fromAccountNumber = sc.next().trim();
+
+        System.out.println("To account:");
+        String toAccountNumber = sc.next().trim();
+
+        System.out.println("Amount:");
+        double amount = sc.nextDouble();
+
+        sc.nextLine(); // consume leftover newline
+        System.out.println("Note:");
+        String note = sc.nextLine().trim();
+
+        boolean success = service.transfer(fromAccountNumber, toAccountNumber, amount, note);
+        System.out.println(success ? "Transfer is complete" : "Transfer not complete yet");
     }
 
     public static void accountStatement(Scanner sc, BankService service) {
-        System.out.println("Account Statement not implemented yet");
+        System.out.println("Account Number:");
+        String accountNumber = sc.next().trim();
+
+        List<Transaction> statement = service.accountStatement(accountNumber);
+
+        if (statement == null || statement.isEmpty()) {
+            System.out.println("No transactions found for account: " + accountNumber);
+            return;
+        }
+
+        System.out.println("Statement for account: " + accountNumber);
+        for (Transaction tx : statement) {
+            System.out.println(tx);
+        }
     }
 
     public static void listAccounts(BankService service) {
@@ -102,9 +148,24 @@ public class Main {
     }
 
     public static void searchAccountByCustomerName(Scanner sc, BankService service) {
-        sc.nextLine(); // consume leftover newline
-        System.out.println("Search Account By Customer Name:");
+        sc.nextLine(); // consume leftover newline if previous input used nextDouble()
+        System.out.println("Enter your name:");
         String name = sc.nextLine().trim();
-        System.out.println("Search  not implemented yet: " + name);
+
+        List<Account> matches = service.searchAccounts(name);
+
+        if (matches.isEmpty()) {
+            System.out.println("No matching accounts found.");
+            return;
+        }
+
+        for (Account account : matches) {
+            System.out.println(
+                    "Account Number: " + account.getAccountNumber()
+                            + " | Customer ID: " + account.getCustomerId()
+                            + " | Balance: " + account.getBalance()
+                            + " | Account Type: " + account.getAccountType()
+            );
+        }
     }
 }
